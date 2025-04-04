@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Instituto Formar</title>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-analytics.js"></script>
+<!-- Ícone do Instituto Formar -->
+<link rel="shortcut icon" href="https://www.institutoformar.org/site/wp-content/uploads/2021/01/Logotipo_Small.png" type="image/x-icon">
+<!-- Estilos CSS -->
+<style>
+    /* Resetando estilos padrão */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* Configurações globais */
+    body {
+        font-family: 'Arial', sans-serif;
+        background: linear-gradient(135deg, #005a8d, #0073b7);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #333;
+    }
+
+    /* Container de login */
+    .login-container {
+        background: #fff;
+        border-radius: 15px;
+        padding: 40px;
+        text-align: center;
+        max-width: 400px;
+        width: 100%;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    h2 {
+        margin-bottom: 20px;
+        font-size: 24px;
+        font-weight: bold;
+        color: #005a8d;
+    }
+
+    .logo {
+        margin-bottom: 20px;
+    }
+
+    /* Campos de entrada */
+    .input-field {
+        width: 100%;
+        padding: 12px;
+        margin: 10px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    /* Botão de login */
+    .login-button {
+        background-color: #ffcc00;
+        color: #333;
+        border: none;
+        padding: 12px;
+        border-radius: 5px;
+        font-size: 16px;
+        width: 100%;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .login-button:hover {
+        background-color: #e6b800;
+    }
+
+    /* Links */
+    .forgot-password {
+        margin-top: 15px;
+        font-size: 14px;
+        color: #005a8d;
+        text-decoration: none;
+    }
+
+    .forgot-password:hover {
+        text-decoration: underline;
+    }
+
+    /* Efeito de loading */
+    .loading {
+        display: none;
+        color: #005a8d;
+        font-size: 18px;
+        margin-top: 10px;
+    }
+
+    .message {
+        margin-top: 15px;
+        font-size: 14px;
+    }
+
+    .message.success {
+        color: #28a745;
+    }
+
+    .message.error {
+        color: #dc3545;
+    }
+
+    /* Responsividade */
+    @media (max-width: 480px) {
+        .login-container {
+            padding: 20px;
+        }
+    }
+</style>
+</head>
+<body>
+<div class="login-container">
+    <div class="logo">
+        <img src="https://www.institutoformar.org/site/wp-content/uploads/2021/01/Logotipo_Small.png" alt="Logotipo Instituto Formar" width="120">
+    </div>
+    <h2>FAÇA SEU LOGIN</h2>
+    <form action="index.php" method="POST" id="login_form">
+        <input type="email" name="email" placeholder="Email" class="input-field" required>
+        <input type="password" name="senha" placeholder="Senha" class="input-field" required>
+        <button type="submit" class="login-button">Entrar</button>
+        <a href="public/cadastro.php" class="forgot-password">Esqueci minha senha</a><br>
+        <a href="public/cadastro.php" class="forgot-password">Criar conta</a>
+    </form>
+    <div id="loading" class="loading">Carregando...</div>
+    <p id="message" class="message"></p>
+</div>
+
+<script>
+    // Configuração do Firebase
+    const firebaseConfig = {
+        apiKey: "API_KEY",
+        authDomain: "autenticacao-agendamento.firebaseapp.com",
+        projectId: "autenticacao-agendamento",
+        storageBucket: "autenticacao-agendamento.appspot.com",
+        messagingSenderId: "789645011724",
+        appId: "1:789645011724:web:816dea84855291bed03729",
+        measurementId: "G-500NCGNMWV"
+    };
+
+    // Inicializando o Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // Exibindo mensagens de sucesso ou erro
+    function displayMessage(message, type = 'error') {
+        const messageElement = document.getElementById('message');
+        messageElement.textContent = message;
+        messageElement.className = `message ${type}`;
+    }
+
+    // Exibir ou ocultar o efeito de loading
+    function toggleLoading(show) {
+        const loading = document.getElementById('loading');
+        loading.style.display = show ? 'block' : 'none';
+    }
+
+    // Função de login com Google
+    document.getElementById('login_google').addEventListener('click', () => {
+        toggleLoading(true); // Exibe o efeito de carregamento
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+
+        // Realiza o login com o Google
+ 
+        auth.signInWithPopup(provider).then((result) => {
+            const user = result.user;
+            displayMessage(`Bem-vindo, ${user.displayName}!`, 'success');
+            // Redirecionar ou realizar outras ações após o login
+        }).catch((error) => {
+            displayMessage(`Erro: ${error.message}`);
+        }).finally(() => {
+            toggleLoading(false); // Oculta o efeito de carregamento
+        });
+    });
+
+    // Função de login com email e senha
+    document.getElementById('login_form').addEventListener('submit', (event) => {
+        event.preventDefault(); // Impede o envio padrão do formulário
+        toggleLoading(true); // Exibe o efeito de carregamento
+
+        const email = event.target.email.value;
+        const password = event.target.senha.value;
+
+        auth.signInWithEmailAndPassword(email, password).then((userCredential) => {
+            const user = userCredential.user;
+            displayMessage(`Bem-vindo, ${user.email}!`, 'success');
+            // Redirecionar ou realizar outras ações após o login
+        }).catch((error) => {
+            displayMessage(`Erro: ${error.message}`);
+        }).finally(() => {
+            toggleLoading(false); // Oculta o efeito de carregamento
+        });
+    });
+</script>
