@@ -33,10 +33,12 @@ require_once '../model/ModelConect.php'; // Conexão com o banco de dados
 
     ?>
 
-    <script src="<?php echo DIRPAGE . 'lib/composer/js/FullCalendar/main.min.js'
-                                                                ?>"></script>
-    <script src="<?php echo DIRPAGE . 'lib/composer/js/javascript.js'
-                                                                ?>"></script>
+    <script src="<?php echo DIRPAGE . 'lib/composer/js/FullCalendar/main.min.js'?>"></script>
+                                                                
+    <script src="<?php echo DIRPAGE . 'lib/composer/js/javascript.js'?>"></script>
+                                                                
+                                                               
+                                                                                                                            ?>"></script>
 
 
 </body>
