@@ -50,3 +50,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 include_once '../view/paginaLogin.html'; // Configurações do sistema
 
 ?>
+<!DOCTYPE html>

@@ -7,51 +7,72 @@
  echo DIRPAGE.'<br>'.DIRREQ; 
 
 #BANCO DE DADOS
-define('HOST',"localhost");
-define('DB',"reservar_veiculos");
-define('USER',"adriel");
-define('PASS',"Adriel@2025");
+const HOST = "localhost";
+const DB = "reservar_veiculos";
+const USER = "adriel";
+const PASS = "Adriel@2025";
 
-$conn = new mysqli(HOST, USER, PASS, DB,);
+$conn = new mysqli(HOST, USER, PASS, DB);
 
 //verfica a conexão
 if($conn->connect_error){
-    die("Conexão falhou: ".$conn->connect_error);
+    die("Conexão falhou: {$conn->connect_error}");
 }
 
-//Recebe os dados do formaulário
-
-// $data = json_decode($json, true);
-
-// if (isset($data["usuario_id"]) && isset ($data["token"])) {
-//     $usuario_id = $conn->real_escape_string($data["usuario_id"]);
-//     $token = $conn->real_escape_string($data["token"]);
-    
-
-//     //inserir os dados no mysql
-// $sql = "INSERT INTO reservas_carros (usuario_id, token) VALUES ('$usuario_id', '$token')";
-//     if ($conn->query($sql) === TRUE) {
-//         echo json_encode(["status" => "success", "success" => true, "message" => "Dados inseridos com sucesso."]);
-//     } else {
-//         echo json_encode(["status" => "error", "message" => "Erro ao inserir dados: " . $conn->error]);
-//     }
-
-//     //fechar a conexão
-//     $conn->close();
-// } else {
-//     echo json_encode(array("status" => "error", "message" => "Dados inválidos."));
-//     exit;
-// }
-
-
 #incluir arquivos
-set_include_path(get_include_path() . PATH_SEPARATOR . DIRREQ . 'lib/composer/vendor/autoloading.php');
+set_include_path(get_include_path() . PATH_SEPARATOR . DIRREQ . 'lib/composer/vendor');
 
-require_once DIRREQ . 'lib/vendor/autoload.php'; // Autoload do Composer
+// require_once DIRREQ . 'lib/vendor/autoload.php'; // Autoload do Composer
+// ?>
+// <?php
+session_start();
+require_once '../config/database.php';
+$db = new Database();
+$pdo = $db->getConnection();
+
+if (!isset($_SESSION['user_id'])) {
+    http_response_code(401);
+    echo "Usuário não autenticado.";
+    exit;
+}
+
+$user_id = $_SESSION['user_id'];
+$start = $_POST['start'] ?? null;
+$end = $_POST['end'] ?? null;
+$destino = $_POST['destino'] ?? null;
+$km_inicial = $_POST['km_inicial'] ?? null;
+$km_final = $_POST['km_final'] ?? null;
+$avarias = $_POST['avarias'] ?? null;
+
+if (!$start || !$end || !$destino || !$km_inicial) {
+    http_response_code(400);
+    echo "Dados incompletos para criar o evento.";
+    exit;
+}
+
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM eventos WHERE (start < :end AND end > :start)");
+$stmt->execute([':start' => $start, ':end' => $end]);
+if ($stmt->fetchColumn() > 0) {
+    echo "Já existe um agendamento nesse horário.";
+    exit;
+}
+
+$stmt = $pdo->prepare("INSERT INTO eventos (user_id, title, start, end, destino, km_inicial, km_final, avarias) VALUES (:user_id, :title, :start, :end, :destino, :km_inicial, :km_final, :avarias)");
+$stmt->execute([
+    ':user_id' => $user_id,
+    ':title' => $destino,
+    ':start' => $start,
+    ':end' => $end,
+    ':destino' => $destino,
+    ':km_inicial' => $km_inicial,
+    ':km_final' => $km_final,
+    ':avarias' => $avarias
+]);
+
+echo "Evento criado com sucesso!";
 ?>
 
 
-?>
 
 
 

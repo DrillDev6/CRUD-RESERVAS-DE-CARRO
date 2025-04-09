@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Agenda de Veículos</title>
+  <link href="../lib/main.min.css" rel="stylesheet">
+  <script src="../lib/main.min.js"></script>
+  <script src="../lib/locales/pt-br.js"></script>
+</head>
+<body>
+  <div id="calendar"></div>
+  <div id="eventModal" style="display:none;">
+    <form id="eventForm">
+      <input type="hidden" name="start" id="start">
+      <input type="hidden" name="end" id="end">
+      <label>Destino: <input type="text" name="destino" required></label><br>
+      <label>KM Inicial: <input type="number" name="km_inicial" required></label><br>
+      <label>KM Final: <input type="number" name="km_final"></label><br>
+      <label>Avarias: <textarea name="avarias"></textarea></label><br>
+      <button type="submit">Salvar</button>
+    </form>
+  </div>
+  <script src="javascript.js"></script>
+</body>
+</html>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const calendarEl = document.getElementById('calendar');
+
+  const calendar = new FullCalendar.Calendar(calendarEl, {
+    locale: 'pt-br',
+    initialView: 'dayGridMonth',
+    headerToolbar: {
+      start: 'prev,next today',
+      center: 'title',
+      end: 'dayGridMonth,timeGridWeek,timeGridDay'
+    },
+    events: '../config/carregar_eventos.php',
+    dateClick: function (info) {
+      document.getElementById('eventModal').style.display = 'block';
+      document.getElementById('start').value = info.dateStr + 'T08:00:00';
+      document.getElementById('end').value = info.dateStr + 'T18:00:00';
+    }
+  });
+
+  calendar.render();
+
+  document.getElementById('eventForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    fetch('../config/salvar_evento.php', {
+      method: 'POST',
+      body: formData
+    })
+    .then(res => res.text())
+    .then(data => {
+      alert(data);
+      document.getElementById('eventModal').style.display = 'none';
+      calendar.refetchEvents();
+    });
+  });
+});
+</script>
+<script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-auth.js"></script>

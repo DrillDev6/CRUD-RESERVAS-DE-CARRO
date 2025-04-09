@@ -13,6 +13,7 @@ class Database
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_EMULATE_PREPARES   => false,
     ];
+    
 
     public function __construct()
     {
@@ -28,14 +29,29 @@ class Database
             // Log the error instead of displaying it
             error_log('Database connection error: ' . $e->getMessage());
             die('Database connection failed.');
+        
         }
     }
 
     public function getConnection()
     {
-        return $this->pdo;
+        try {
+            $host = 'localhost';
+            $dbname = 'reservar_veiculos';
+            $username = 'adriel';
+            $password = 'Adriel@2025';
+
+            $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            return $pdo;
+        } catch (PDOException $e) {
+            die("Erro ao conectar ao banco de dados: " . $e->getMessage());
+        }
     }
 }
+
+//
+// Example usage of the Database class
 
 // Usage example
 // $db = new Database();

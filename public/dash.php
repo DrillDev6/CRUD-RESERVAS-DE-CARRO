@@ -9,7 +9,7 @@ require_once '../model/ModelConect.php'; // Conexão com o banco de dados
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agendamento Veiculos 2</title>
+    <title>Agendamento Veiculos</title>
     <link rel="stylesheet" href="<?php echo DIRPAGE . 'lib/composer/css/calendar.css'; ?>">
     <link rel="stylesheet" href="<?php echo DIRPAGE . 'lib/composer/js/FullCalendar/main.min.css'; ?>">
     <link rel="shortcut icon" type="img/png"
@@ -44,4 +44,7 @@ require_once '../model/ModelConect.php'; // Conexão com o banco de dados
 </body>
 
 </html>
+<?php
+// End of file  dash.php
+// Location: public/dash.php 
 

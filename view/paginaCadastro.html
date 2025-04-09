@@ -86,17 +86,80 @@ body {
 }
 
     </style>
-
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastro</title>
+  <link rel="stylesheet" href="seu-estilo.css"> <!-- se estiver usando um -->
 </head>
 <body>
-    <div class="login-container">
-        <h2>Bem-vindo</h2>
-         <form>
-             <input type="text" class="input-field" placeholder="Usuário" required>
-             <input type="password" class="input-field" placeholder="Senha" required>
-             <button type="submit" class="login-button">Entrar</button>
-             <a href="alterar_senha.html" class="forgot-password">Esqueceu a senha?</a>
-                                                </form>
-    </div>
+  <div class="login-container">
+    <h2>Bem-vindo</h2>
+    <form id="cadastroForm" method="POST" action="">
+      <input type="email" id="email" class="input-field" placeholder="Usuário ou Email" required>
+      <input type="password" id="senha" class="input-field" placeholder="Senha" required>
+      <button type="submit" class="login-button">Cadastrar</button>
+      <a href="alterar_senha.html" class="forgot-password">Esqueceu a senha?</a>
+    </form>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+  <script>
+    // 🔥 Substitua pelos seus dados do Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAdhWHY7wLw5_-LUkgl47XURL55eqn0G2k",
+  authDomain: "reservar-veiculos.firebaseapp.com",
+  projectId: "reservar-veiculos",
+  storageBucket: "reservar-veiculos.firebasestorage.app",
+  messagingSenderId: "903880620251",
+  appId: "1:903880620251:web:847c1893c774d9d2fab4fe",
+  measurementId: "G-Z32DCYKZGG"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <script>
+    const auth = firebase.auth();
+
+    document.getElementById('cadastroForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const senha = document.getElementById('senha').value;
+
+      auth.createUserWithEmailAndPassword(email, senha)
+        .then((userCredential) => {
+          const user = userCredential.user;
+
+          // Envia dados para o servidor PHP
+          fetch('../auth/salvar_usuario.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              firebase_uid: user.uid,
+              email: user.email
+            })
+          })
+          .then(response => response.text())
+          .then(data => {
+            alert("Usuário cadastrado e salvo com sucesso!");
+            window.location.href = 'dash.php';
+          })
+          .catch(error => {
+            console.error('Erro ao salvar no banco:', error);
+          });
+
+        })
+        .catch((error) => {
+          alert("Erro ao cadastrar no Firebase: " + error.message);
+        });
+    });
+  </script>
 </body>
 </html>
